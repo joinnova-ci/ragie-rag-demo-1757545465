@@ -5,15 +5,17 @@ on:
   push:
     branches: [main, master, development]
     paths:
-      - "ragie-rag-demo/**"
-      - "test_ragie_demo.sh"
-      - "demos/ragie-rag-demo/**"
+      - "**.py"
+      - "requirements.txt"
+      - "pytest.ini"
+      - ".github/workflows/nova-ragie.yml"
   pull_request:
     branches: [main, master, development]
     paths:
-      - "ragie-rag-demo/**"
-      - "test_ragie_demo.sh"
-      - "demos/ragie-rag-demo/**"
+      - "**.py"
+      - "requirements.txt"
+      - "pytest.ini"
+      - ".github/workflows/nova-ragie.yml"
   workflow_dispatch:
 
 permissions:
@@ -27,8 +29,12 @@ jobs:
     name: Test Ragie RAG Pipeline with Nova
     runs-on: ubuntu-latest
 
-    # Skip on Nova auto-fix commits
-    if: "!contains(github.event.head_commit.message, '[skip nova]') && !contains(github.event.head_commit.message, '🤖 Nova Auto-Fix')"
+    # Skip on Nova auto-fix commits (push only)
+    if: >
+      ${{ github.event_name != 'push' || (
+            !contains(github.event.head_commit.message, '[skip nova]') &&
+            !contains(github.event.head_commit.message, '🤖 Nova Auto-Fix')
+          ) }}
 
     steps:
       - name: Checkout Repository
@@ -356,16 +362,16 @@ jobs:
 
           # Run Nova with Ragie-optimized settings
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            timeout 600 nova fix . \
-              --max-iters 3 \
-              --timeout 400 \
+            timeout 900 nova fix . \
+              --max-iters 10 \
+              --timeout 800 \
               --ci-mode \
               --patch-mode \
               --verbose || NOVA_EXIT=$?
           else
-            timeout 600 nova fix . \
-              --max-iters 3 \
-              --timeout 400 \
+            timeout 900 nova fix . \
+              --max-iters 10 \
+              --timeout 800 \
               --verbose || NOVA_EXIT=$?
           fi
 
