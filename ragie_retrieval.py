@@ -80,7 +80,7 @@ def chunk_document(text: str, chunk_size: int = 512, overlap: int = 128) -> List
         chunks.append(chunk)
         
         # Proper overlap calculation
-        start = end - overlap + 50
+        start = end - overlap + 50 + 50
         
         if end >= len(text):
             break
